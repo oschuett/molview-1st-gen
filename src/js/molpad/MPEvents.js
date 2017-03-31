@@ -48,11 +48,11 @@ MolPad.prototype.setupEventHandling = function()
 
 		if(e.originalEvent.detail)
 		{
-			scope.onScroll(e.originalEvent.detail / 3, e);
+			scope.onScroll(e.originalEvent.detail / 3, e, scope);
 		}
 		else if(e.originalEvent.wheelDelta)
 		{
-			scope.onScroll(e.originalEvent.wheelDelta / 120, e);
+			scope.onScroll(e.originalEvent.wheelDelta / 120, e, scope);
 		}
 	});
 
@@ -69,6 +69,8 @@ MolPad.prototype.setupEventHandling = function()
 		scope.onPointerDown(e);
 		scope.clearRedrawRequest();
 	});
+
+	// register on container instead of window
 	this.container.on("mousemove", function(e)
 	{
 		scope.onMouseMoveInContainer(e);
@@ -79,17 +81,17 @@ MolPad.prototype.setupEventHandling = function()
 		scope.onMouseOut(e);
 		scope.clearRedrawRequest();
 	});
-	jQuery(window).on("mousemove touchmove", function(e)
+	this.container.on("mousemove touchmove", function(e)
 	{
 		scope.onPointerMove(e);
 		scope.clearRedrawRequest();
 	});
-	jQuery(window).on("mouseup touchend touchcancel", function(e)
+	this.container.on("mouseup touchend touchcancel", function(e)
 	{
 		scope.onPointerUp(e);
 		scope.clearRedrawRequest();
 	});
-	jQuery(window).on("blur", function(e)
+	this.container.on("blur", function(e)
 	{
 		scope.onBlur(e);
 	});
@@ -100,24 +102,24 @@ MolPad.prototype.setupEventHandling = function()
 
 	if(navigator.platform.toLowerCase().indexOf("mac") >= 0)
 	{
-		jQuery(document).bind("keydown", "meta+z", function(e)
+		this.container.bind("keydown", "meta+z", function(e)
 				{ e.preventDefault(); scope.undo(); });
-		jQuery(document).bind("keydown", "meta+y", function(e)
+		this.container.bind("keydown", "meta+y", function(e)
 				{ e.preventDefault(); scope.redo(); });
-		jQuery(document).bind("keydown", "meta+shift+z", function(e)
+		this.container.bind("keydown", "meta+shift+z", function(e)
 				{ e.preventDefault(); scope.redo(); });
 	}
 	else
 	{
-		jQuery(document).bind("keydown", "ctrl+z", function(e)
+		this.container.bind("keydown", "ctrl+z", function(e)
 				{ e.preventDefault(); scope.undo(); });
-		jQuery(document).bind("keydown", "ctrl+y", function(e)
+		this.container.bind("keydown", "ctrl+y", function(e)
 				{ e.preventDefault(); scope.redo(); });
-		jQuery(document).bind("keydown", "ctrl+shift+z", function(e)
+		this.container.bind("keydown", "ctrl+shift+z", function(e)
 				{ e.preventDefault(); scope.redo(); });
 	}
 
-	jQuery(document).on("keydown", function(e)
+	this.container.on("keydown", function(e)
 	{
 		scope.keys.ctrl = e.ctrlKey;
 
@@ -127,19 +129,21 @@ MolPad.prototype.setupEventHandling = function()
 			scope.clearRedrawRequest();
 		}
 	});
-	jQuery(document).on("keyup", function(e)
+	this.container.on("keyup", function(e)
 	{
 		scope.keys.ctrl = e.ctrlKey;
 	});
 }
 
-MolPad.prototype.onScroll = function(delta, e)
+MolPad.prototype.onScroll = function(delta, e, scope)
 {
 	var s = 1 + this.s.zoomSpeed * delta;
 	if(this.matrix[0] * s < this.s.minZoom) s = this.s.minZoom / this.matrix[0];
 	var p = new MPPoint().fromPointer(e);
-	p.x -= this.offset.left;
-	p.y -= this.offset.top;
+
+	var offset = scope.canvas.getBoundingClientRect();
+	p.x = (p.x - offset.left) * scope.devicePixelRatio;
+	p.y = (p.y - offset.top) * scope.devicePixelRatio;
 
 	if(this.s.zoomType === MP_ZOOM_TO_COG)
 	{

@@ -46,7 +46,6 @@ function MolPad(container, devicePixelRatio, buttons)
 
 	this.buttons = buttons;
 	this.container = jQuery(container);
-	this.offset = this.container.offset();
 	this.devicePixelRatio = devicePixelRatio || 1;
 
 	this.setupEventHandling();

@@ -42,7 +42,6 @@ MolPad.prototype.resize = function()
 	this.canvas.height = this.container.height() * this.devicePixelRatio;
 	this.canvas.style.width = this.container.width() + "px";
 	this.canvas.style.height = this.container.height() + "px";
-	this.offset = this.container.offset();
 	this.center();
 }
 

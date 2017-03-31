@@ -290,9 +290,10 @@ MPPoint.prototype.fromPointer = function(e)
 MPPoint.prototype.fromRelativePointer = function(e, mpctx)
 {
 	this.fromPointer(e);
-
-	this.x = (this.x - mpctx.offset.left) * mpctx.devicePixelRatio;
-	this.y = (this.y - mpctx.offset.top) * mpctx.devicePixelRatio;
+	
+	var offset = mpctx.canvas.getBoundingClientRect();
+	this.x = (this.x - offset.left) * mpctx.devicePixelRatio;
+	this.y = (this.y - offset.top) * mpctx.devicePixelRatio;
 	this.x = (this.x - mpctx.matrix[4]) / mpctx.matrix[0];
 	this.y = (this.y - mpctx.matrix[5]) / mpctx.matrix[3];
 

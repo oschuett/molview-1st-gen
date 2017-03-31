@@ -7,3 +7,5 @@
 /*.png
 favicon.ico
 .directory
+*~
+*.pyc
